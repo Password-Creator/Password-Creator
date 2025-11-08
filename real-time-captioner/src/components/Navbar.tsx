@@ -6,7 +6,7 @@ interface NavbarProps {
   onToggleDiagnostics: () => void;
   onForceReset: () => void;
   onLogout?: () => void;
-  userEmail?: string;
+  userName?: string;
 }
 
 const Navbar: React.FC<NavbarProps> = ({
@@ -14,32 +14,37 @@ const Navbar: React.FC<NavbarProps> = ({
   onToggleDiagnostics,
   onForceReset,
   onLogout,
-  userEmail,
+  userName,
 }) => {
   return (
     <header className="navbar">
       <h1 className="navbar-title">SpeakEasy</h1>
+      {userName && (
+        <div className="navbar-welcome">
+          Welcome, <span className="navbar-username">{userName}</span>
+        </div>
+      )}
       <div className="navbar-controls">
         <button 
-          className="navbar-button"
+          className="navbar-button navbar-button-home"
           onClick={() => {/* Navigate to home */}}
           aria-label="Home"
         >
           🏠 Home
         </button>
         <button 
-          className="navbar-button"
+          className="navbar-button navbar-button-secondary"
           onClick={() => {/* Navigate to notes */}}
           aria-label="Notes"
         >
           📝 Notes
         </button>
         <button 
-          className="navbar-button"
+          className="navbar-button navbar-button-secondary"
           onClick={onToggleDiagnostics}
           aria-label="Toggle diagnostics"
         >
-          � Debug
+          🐛 Debug
         </button>
         {showDiagnostics && (
           <button 
@@ -52,7 +57,7 @@ const Navbar: React.FC<NavbarProps> = ({
         )}
         {onLogout && (
           <button
-            className="navbar-button navbar-button-logout"
+            className="navbar-button navbar-button-home"
             onClick={onLogout}
             aria-label="Log out"
           >

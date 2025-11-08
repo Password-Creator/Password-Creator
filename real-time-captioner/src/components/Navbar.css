@@ -28,6 +28,25 @@
   font-family: 'VT323', monospace;
 }
 
+.navbar-welcome {
+  color: #f8b700;
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0px #ff004d;
+  font-family: 'VT323', monospace;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 120px;
+}
+
+.navbar-username {
+  color: #29adff;
+  font-weight: 400;
+  text-shadow: 2px 2px 0px #ff004d;
+}
+
 .navbar-controls {
   display: flex;
   gap: 10px;
@@ -46,6 +65,34 @@
   align-items: center;
   gap: 8px;
   transition: all 0.3s;
+}
+
+.navbar-button-home {
+  background-color: #222034;
+  border: 3px solid #f8b700;
+  color: #f8b700;
+  text-shadow: 2px 2px 0px #ff004d;
+}
+
+.navbar-button-home:hover {
+  background-color: #f8b700;
+  color: #222034;
+  text-shadow: none;
+  transform: translateY(-2px);
+}
+
+.navbar-button-secondary {
+  background-color: #222034;
+  border: 3px solid #29adff;
+  color: #29adff;
+  text-shadow: 2px 2px 0px #ff004d;
+}
+
+.navbar-button-secondary:hover {
+  background-color: #29adff;
+  color: #222034;
+  text-shadow: none;
+  transform: translateY(-2px);
 }
 
 .navbar-button:hover {

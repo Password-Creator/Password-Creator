@@ -131,7 +131,7 @@ function App() {
         onToggleDiagnostics={() => setShowDiagnostics(!showDiagnostics)}
         onForceReset={() => window.location.reload()}
         onLogout={handleLogout}
-        userEmail={user?.email || 'User'}
+        userName={user?.name || user?.nickname || user?.given_name || 'User'}
       />
       {/* Pixel frame overlay that expands to the browser edges between navbar and controls */}
       <div className="pixel-frame" aria-hidden="true" />
