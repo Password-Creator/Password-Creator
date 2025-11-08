@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
 import CaptionDisplay from './components/CaptionDisplay';
 import AudioControls from './components/AudioControls';
 import Settings from './components/Settings';
@@ -22,13 +23,12 @@ const defaultSettings: CaptionSettings = {
 };
 
 function App() {
+  const { isAuthenticated, isLoading, user, logout } = useAuth0();
   const [captions, setCaptions] = useState<Caption[]>([]);
   const [settings, setSettings] = useState<CaptionSettings>(defaultSettings);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [showDiagnostics, setShowDiagnostics] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userEmail, setUserEmail] = useState<string>('');
 
   const handleResult = useCallback((caption: Caption) => {
     setCaptions(prev => {
@@ -90,23 +90,35 @@ function App() {
     setSettings(newSettings);
   }, []);
 
-  const handleLogin = useCallback((email: string) => {
-    setUserEmail(email);
-    setIsAuthenticated(true);
-  }, []);
-
   const handleLogout = useCallback(() => {
-    setIsAuthenticated(false);
-    setUserEmail('');
     // Clear sensitive state (captions) on logout for privacy
     clearCaptions();
-  }, [clearCaptions]);
+    logout({ logoutParams: { returnTo: window.location.origin } });
+  }, [clearCaptions, logout]);
+
+  // Show loading state while Auth0 is checking authentication
+  if (isLoading) {
+    return (
+      <div className="App" style={{ fontFamily: settings.fontFamily }}>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          height: '100vh',
+          color: 'white',
+          fontSize: '24px'
+        }}>
+          Loading...
+        </div>
+      </div>
+    );
+  }
 
   // Render landing page when not authenticated
   if (!isAuthenticated) {
     return (
       <div className="App" style={{ fontFamily: settings.fontFamily }}>
-        <Landing onLogin={handleLogin} onCreateAccount={() => alert('Account creation not implemented in this demo.')} />
+        <Landing onLogin={() => {}} onCreateAccount={() => {}} />
       </div>
     );
   }
@@ -119,7 +131,7 @@ function App() {
         onToggleDiagnostics={() => setShowDiagnostics(!showDiagnostics)}
         onForceReset={() => window.location.reload()}
         onLogout={handleLogout}
-        userEmail={userEmail}
+        userEmail={user?.email || 'User'}
       />
       {/* Pixel frame overlay that expands to the browser edges between navbar and controls */}
       <div className="pixel-frame" aria-hidden="true" />
@@ -160,8 +172,6 @@ function App() {
         <CaptionDisplay
           captions={captions}
           fontSize={settings.fontSize}
-          maxLines={settings.maxLines}
-          showConfidence={settings.showConfidence}
           backgroundColor={settings.backgroundColor}
           textColor={settings.textColor}
           autoScroll={settings.autoScroll}

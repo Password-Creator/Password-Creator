@@ -3,31 +3,58 @@
   height: 100vh;
   padding: 20px;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible; /* Changed from hidden to allow scrolling */
   font-family: 'Arial', 'Helvetica', sans-serif;
   line-height: 1.4;
   position: relative;
   background: transparent;
+  z-index: 100; /* Higher than app-main (50), pixel-frame (1), and background (0) */
 }
 
-.caption-display.karaoke-style {
+/* Notes style - scrollable document format */
+.caption-display.notes-style {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-  text-align: center;
+  justify-content: flex-start; /* Start from top */
+  align-items: flex-start; /* Align left */
+  padding: 80px 40px 200px 40px; /* More left padding */
+  overflow: visible; /* Allow overflow for scrolling */
 }
 
-.captions-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
+/* Scrollable container for captions */
+.captions-scrollable-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0;
+  display: block; /* Changed from flex to block for text flow */
+  max-width: 100%; /* Full width */
   width: 100%;
-  max-width: 900px;
-  gap: 8px;
-  height: 100%;
-  padding-bottom: 180px;
+  margin: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--pixel-primary) rgba(0,0,0,0.3);
+  min-height: 0; /* Important for flexbox scrolling */
+  max-height: calc(100vh - 280px); /* Ensure it doesn't overflow the viewport */
+  position: relative;
+  z-index: 120; /* Above background and frames */
+  text-align: left; /* Left align text */
+}
+
+.captions-scrollable-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.captions-scrollable-container::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.3);
+}
+
+.captions-scrollable-container::-webkit-scrollbar-thumb {
+  background: var(--pixel-primary);
+  border-radius: 4px;
+}
+
+.captions-scrollable-container::-webkit-scrollbar-thumb:hover {
+  background: var(--pixel-accent);
 }
 
 /* Ready text (not in a box), hover above controls */
@@ -50,6 +77,8 @@
   font-size: 1.2em;
   font-weight: 700;
   font-family: 'VT323', monospace;
+  z-index: 150; /* Above everything except controls */
+  pointer-events: none; /* Don't block interactions */
 }
 
 .no-captions p {
@@ -67,142 +96,75 @@
   text-shadow: 1px 1px 0px rgba(0,0,0,0.5);
 }
 
-.caption-line {
-  margin-bottom: 15px;
+/* Notes-style captions - document format */
+.notes-caption {
+  margin: 0 0 8px 0;
   padding: 0;
-  border-radius: 0;
-  background-color: transparent;
+  background-color: transparent; /* No background box */
   backdrop-filter: none;
-  transition: all 0.5s ease;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 15px;
-}
-
-.karaoke-caption {
-  margin: 3px 0;
-  padding: 0;
   border-radius: 0;
-  background-color: transparent;
-  backdrop-filter: none;
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  min-height: 30px;
+  display: block;
+  text-align: left;
   width: 100%;
+  color: white !important; /* Force white color */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9); /* Strong shadow for readability */
+  font-size: 1em;
+  line-height: 1.6;
   position: relative;
-  color: white;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-  font-size: 0.9em;
-  font-weight: bold;
+  z-index: 150; /* Above everything except UI controls */
+  opacity: 1 !important; /* Force full opacity for all captions */
+  border: none;
 }
 
-.karaoke-caption.current {
-  background-color: transparent;
+.notes-caption.current {
+  background-color: transparent; /* No special background */
+  border: none;
   box-shadow: none;
-  border: none;
-  animation: textGlow 2s ease-in-out infinite alternate;
-  transform: scale(1.1);
-  font-size: 1.1em;
-  z-index: 10;
 }
 
-.karaoke-caption.older {
-  background-color: transparent;
-  transform: scale(0.9);
-  font-size: 0.8em;
-}
-
-@keyframes textGlow {
-  from {
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-  }
-  to {
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9), 0 0 20px rgba(255, 255, 255, 0.6);
-  }
-}
-
-@keyframes gentle-glow {
-  from {
-    box-shadow: 
-      3px 3px 0px var(--hero-piece-6),
-      6px 6px 0px rgba(0, 0, 0, 0.4);
-    border-color: var(--hero-piece-11);
-  }
-  to {
-    box-shadow: 
-      3px 3px 0px var(--hero-piece-10),
-      6px 6px 0px rgba(0, 0, 0, 0.4);
-    border-color: var(--hero-piece-12);
-  }
-}
-
-.caption-line.interim {
-  opacity: 0.7;
+.notes-caption.interim {
   font-style: italic;
-  background-color: transparent;
-  color: white;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
-  font-size: 1em;
-}
-
-.caption-line.final {
-  opacity: 1;
-  background-color: transparent;
-  color: white;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-  font-size: 1em;
-  font-weight: bold;
-}
-
-.karaoke-caption.interim {
-  font-style: italic;
+  opacity: 1 !important; /* Even interim captions stay fully visible */
   border: none;
-  opacity: 0.8;
 }
 
-.karaoke-caption.final {
+.notes-caption.final {
   font-style: normal;
-  border: none;
+  opacity: 1 !important; /* Force all final captions to be fully visible */
 }
 
 .caption-content {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: inline; /* Inline display for flowing text */
+  opacity: 1 !important; /* Force full opacity */
 }
 
 .caption-text {
-  flex: 1;
+  display: inline; /* Inline so text flows naturally */
   word-wrap: break-word;
   hyphens: auto;
-  color: white;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  color: white !important; /* Force white text */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
   font-size: 1em;
-  font-weight: bold;
-  text-align: center;
+  font-weight: normal;
+  opacity: 1 !important; /* Force full opacity */
 }
 
-/* Terminal typing styling for current line */
+/* Terminal typing styling for current line - cursor flows with text */
 .caption-text.terminal {
   font-family: 'VT323', monospace;
-  font-size: 1.1em;
+  font-size: 1.2em;
   color: var(--pixel-text);
-  text-shadow: 2px 2px 0px rgba(0,0,0,0.6);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+  display: inline; /* Inline so cursor follows text */
 }
 
 .pixel-cursor {
   display: inline-block;
-  width: 10px;
-  height: 1.1em;
+  width: 12px;
+  height: 1.2em;
   background-color: var(--pixel-accent);
-  margin-left: 6px;
-  vertical-align: -2px;
+  margin-left: 2px;
+  vertical-align: middle;
   animation: pixelBlink 1s steps(2, jump-none) infinite;
 }
 

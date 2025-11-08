@@ -29,10 +29,10 @@
   flex: 1;
   padding-top: 60px; /* Account for fixed header */
   padding-bottom: 120px; /* Account for fixed controls */
-  overflow: hidden;
+  overflow: visible; /* Changed from hidden to allow scrolling */
   position: relative;
   background: transparent;
-  z-index: 2;
+  z-index: 50; /* Much higher than pixel-frame (1) and background (0) */
 }
 
 .error-banner {

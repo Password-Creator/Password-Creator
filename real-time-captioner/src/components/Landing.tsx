@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
 import './Landing.css';
 
 interface LandingProps {
@@ -7,6 +8,7 @@ interface LandingProps {
 }
 
 const Landing: React.FC<LandingProps> = ({ onLogin, onCreateAccount }) => {
+  const { loginWithRedirect } = useAuth0();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{email?: string; password?: string}>({});
@@ -87,7 +89,11 @@ const Landing: React.FC<LandingProps> = ({ onLogin, onCreateAccount }) => {
           <button 
             type="button" 
             className="social-btn social-btn-google"
-            onClick={() => alert('Google Auth not yet implemented')}
+            onClick={() => loginWithRedirect({ 
+              authorizationParams: { 
+                connection: 'google-oauth2' 
+              }
+            })}
           >
             <span className="social-icon">G</span>
             SIGN IN WITH GOOGLE
@@ -95,7 +101,11 @@ const Landing: React.FC<LandingProps> = ({ onLogin, onCreateAccount }) => {
           <button 
             type="button" 
             className="social-btn social-btn-linkedin"
-            onClick={() => alert('LinkedIn Auth not yet implemented')}
+            onClick={() => loginWithRedirect({ 
+              authorizationParams: { 
+                connection: 'linkedin' 
+              }
+            })}
           >
             <span className="social-icon">in</span>
             SIGN IN WITH LINKEDIN
