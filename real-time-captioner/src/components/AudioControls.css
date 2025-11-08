@@ -59,9 +59,14 @@
   cursor: pointer;
   padding: 10px;
   border-radius: 50%;
-  transition: all 0.3s ease;
+  transition: all 0.1s ease; /* Faster transition for instant feedback */
   min-width: 60px;
   min-height: 60px;
+}
+
+.mic-button:active {
+  transform: scale(0.95);
+  transition: transform 0.05s ease;
 }
 
 .mic-button:hover, .clear-button:hover {

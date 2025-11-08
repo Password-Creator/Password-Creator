@@ -1,0 +1,66 @@
+.troubleshooting-tips {
+  background: rgba(33, 150, 243, 0.1);
+  border: 1px solid rgba(33, 150, 243, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px;
+  color: white;
+}
+
+.troubleshooting-tips h3 {
+  margin: 0 0 15px 0;
+  color: #2196F3;
+  font-size: 1.1em;
+}
+
+.troubleshooting-tips ul {
+  margin: 0 0 20px 0;
+  padding-left: 20px;
+}
+
+.troubleshooting-tips li {
+  margin-bottom: 8px;
+  line-height: 1.4;
+  font-size: 0.9em;
+}
+
+.browser-requirements h4 {
+  margin: 0 0 10px 0;
+  font-size: 0.9em;
+  color: #ccc;
+}
+
+.browser-list {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.browser {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  font-weight: 500;
+}
+
+.browser.supported {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+}
+
+.browser.not-supported {
+  background: rgba(244, 67, 54, 0.2);
+  color: #F44336;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .troubleshooting-tips {
+    margin: 15px;
+    padding: 15px;
+  }
+  
+  .browser-list {
+    gap: 10px;
+  }
+}

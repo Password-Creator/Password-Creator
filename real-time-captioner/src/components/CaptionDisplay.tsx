@@ -15,22 +15,65 @@ interface CaptionDisplayProps {
 const CaptionDisplay: React.FC<CaptionDisplayProps> = ({
   captions,
   fontSize = 24,
-  maxLines = 10,
+  maxLines = 8,
   showConfidence = false,
   backgroundColor = '#000000',
   textColor = '#ffffff',
   autoScroll = true
 }) => {
-  const displayCaptions = captions.slice(-maxLines);
+  const [visibleCaptions, setVisibleCaptions] = React.useState<Caption[]>([]);
 
+  // Auto-remove captions after 30 seconds
   React.useEffect(() => {
-    if (autoScroll) {
-      const captionContainer = document.getElementById('caption-container');
-      if (captionContainer) {
-        captionContainer.scrollTop = captionContainer.scrollHeight;
-      }
+    const now = new Date();
+    const thirtySecondsAgo = new Date(now.getTime() - 30000);
+    
+    // Filter out captions older than 30 seconds and only keep final results
+    const filtered = captions.filter(caption => 
+      caption.timestamp > thirtySecondsAgo && caption.isFinal
+    );
+    
+    // Add the latest interim result if it exists
+    const latestInterim = captions.find(caption => !caption.isFinal);
+    if (latestInterim) {
+      filtered.push(latestInterim);
     }
-  }, [captions, autoScroll]);
+    
+    setVisibleCaptions(filtered.slice(-maxLines));
+  }, [captions, maxLines]);
+
+  // Auto-clean old captions every second
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date();
+      const thirtySecondsAgo = new Date(now.getTime() - 30000);
+      
+      setVisibleCaptions(prev => 
+        prev.filter(caption => caption.timestamp > thirtySecondsAgo)
+      );
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const getAgeOpacity = (timestamp: Date): number => {
+    const now = new Date();
+    const age = now.getTime() - timestamp.getTime();
+    const maxAge = 30000; // 30 seconds
+    
+    if (age >= maxAge) return 0;
+    if (age <= 5000) return 1; // Full opacity for first 5 seconds
+    
+    // Fade from 1 to 0.3 over the remaining 25 seconds
+    const fadeProgress = (age - 5000) / 25000;
+    return Math.max(0.3, 1 - (fadeProgress * 0.7));
+  };
+
+  const getCaptionPosition = (index: number, total: number): string => {
+    if (total === 1) return 'center';
+    if (index === total - 1) return 'center'; // Latest caption in center
+    return 'above'; // Older captions move up
+  };
 
   const getConfidenceColor = (confidence: number): string => {
     if (confidence >= 0.8) return '#4CAF50'; // Green - high confidence
@@ -38,56 +81,64 @@ const CaptionDisplay: React.FC<CaptionDisplayProps> = ({
     return '#F44336'; // Red - low confidence
   };
 
-  const formatTime = (timestamp: Date): string => {
-    return timestamp.toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      second: '2-digit' 
-    });
-  };
+
 
   return (
     <div 
       id="caption-container"
-      className="caption-display"
+      className="caption-display karaoke-style"
       style={{
         backgroundColor,
         color: textColor,
         fontSize: `${fontSize}px`
       }}
     >
-      {displayCaptions.length === 0 ? (
+      {visibleCaptions.length === 0 ? (
         <div className="no-captions">
           <p>Ready to capture speech...</p>
           <p className="subtitle">Click the microphone button to start</p>
         </div>
       ) : (
-        displayCaptions.map((caption) => (
-          <div 
-            key={caption.id} 
-            className={`caption-line ${caption.isFinal ? 'final' : 'interim'}`}
-            style={{
-              borderLeft: showConfidence 
-                ? `4px solid ${getConfidenceColor(caption.confidence)}` 
-                : 'none'
-            }}
-          >
-            <div className="caption-content">
-              <span className="caption-text">{caption.text}</span>
-              {showConfidence && (
-                <span 
-                  className="confidence-indicator"
-                  style={{ color: getConfidenceColor(caption.confidence) }}
-                >
-                  {Math.round(caption.confidence * 100)}%
-                </span>
-              )}
-            </div>
-            <div className="caption-timestamp">
-              {formatTime(caption.timestamp)}
-            </div>
-          </div>
-        ))
+        <div className="captions-container">
+          {visibleCaptions.map((caption: Caption, index: number) => {
+            const position = getCaptionPosition(index, visibleCaptions.length);
+            const opacity = getAgeOpacity(caption.timestamp);
+            
+            return (
+              <div 
+                key={caption.id} 
+                className={`caption-line karaoke-caption ${caption.isFinal ? 'final' : 'interim'} ${position}`}
+                style={{
+                  opacity,
+                  borderLeft: showConfidence 
+                    ? `4px solid ${getConfidenceColor(caption.confidence)}` 
+                    : 'none',
+                  transform: position === 'center' ? 'scale(1.1)' : 'scale(1)',
+                  fontWeight: position === 'center' ? 'bold' : 'normal'
+                }}
+              >
+                <div className="caption-content">
+                  <span className="caption-text">{caption.text}</span>
+                  {showConfidence && (
+                    <span 
+                      className="confidence-indicator"
+                      style={{ color: getConfidenceColor(caption.confidence) }}
+                    >
+                      {Math.round(caption.confidence * 100)}%
+                    </span>
+                  )}
+                </div>
+                {!caption.isFinal && position === 'center' && (
+                  <div className="typing-indicator">
+                    <span className="dot"></span>
+                    <span className="dot"></span>
+                    <span className="dot"></span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );

@@ -1,4 +1,5 @@
 import React from 'react';
+import TroubleshootingTips from './TroubleshootingTips';
 import './AudioControls.css';
 
 interface AudioControlsProps {
@@ -7,6 +8,7 @@ interface AudioControlsProps {
   onToggleListening: () => void;
   onClearCaptions: () => void;
   volume?: number;
+  errorMessage?: string;
 }
 
 const AudioControls: React.FC<AudioControlsProps> = ({
@@ -14,7 +16,8 @@ const AudioControls: React.FC<AudioControlsProps> = ({
   isSupported,
   onToggleListening,
   onClearCaptions,
-  volume = 0
+  volume = 0,
+  errorMessage
 }) => {
   if (!isSupported) {
     return (
@@ -26,6 +29,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
             Try using Chrome, Safari, or Edge for the best experience.
           </p>
         </div>
+        <TroubleshootingTips />
       </div>
     );
   }
@@ -36,6 +40,13 @@ const AudioControls: React.FC<AudioControlsProps> = ({
         <button
           className={`mic-button ${isListening ? 'listening' : 'stopped'}`}
           onClick={onToggleListening}
+          onMouseDown={(e) => {
+            // Immediate visual feedback
+            e.currentTarget.style.transform = 'scale(0.95)';
+          }}
+          onMouseUp={(e) => {
+            e.currentTarget.style.transform = '';
+          }}
           aria-label={isListening ? 'Stop listening' : 'Start listening'}
         >
           <div className="mic-icon">
