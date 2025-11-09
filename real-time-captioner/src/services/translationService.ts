@@ -3,8 +3,8 @@
  * Translates text from English to the target language
  */
 
-// Use the dedicated Google Cloud Translation API key
-const TRANSLATE_API_KEY = process.env.REACT_APP_GOOGLE_TRANSLATE_API_KEY || '';
+// Use the dedicated Google Cloud Translation API key, fallback to Gemini key
+const TRANSLATE_API_KEY = process.env.REACT_APP_GOOGLE_TRANSLATE_API_KEY || process.env.REACT_APP_GEMINI_API_KEY || '';
 
 if (!TRANSLATE_API_KEY || TRANSLATE_API_KEY === 'YOUR_GOOGLE_TRANSLATE_API_KEY_HERE') {
   console.warn('Warning: REACT_APP_GOOGLE_TRANSLATE_API_KEY is not set. Translation will not work.');
@@ -31,17 +31,21 @@ export async function translateText(
   targetLanguage: string,
   sourceLanguage: string = 'en'
 ): Promise<string> {
+  console.log('🔍 translateText called:', { text: text.substring(0, 50), targetLanguage, sourceLanguage });
+  
   // If target language is English or same as source, return original text
   if (targetLanguage === 'en' || targetLanguage === sourceLanguage) {
+    console.log('⏭️ Skipping translation: target is same as source');
     return text;
   }
 
   if (!TRANSLATE_API_KEY) {
-    console.error('Google Translate API key not configured');
+    console.error('❌ Google Translate API key not configured');
     return text; // Return original text if no API key
   }
 
   try {
+    console.log('🚀 Making API call to Google Translate...');
     const url = `https://translation.googleapis.com/language/translate/v2?key=${TRANSLATE_API_KEY}`;
     
     const response = await fetch(url, {
@@ -57,19 +61,26 @@ export async function translateText(
       })
     });
 
+    console.log('📡 API Response status:', response.status);
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ API Error Response:', errorText);
       throw new Error(`Translation API error: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log('📦 API Response data:', data);
     
     if (data.data && data.data.translations && data.data.translations[0]) {
-      return data.data.translations[0].translatedText;
+      const translated = data.data.translations[0].translatedText;
+      console.log('✅ Translation successful:', translated.substring(0, 50));
+      return translated;
     }
 
     throw new Error('Invalid translation response');
   } catch (error) {
-    console.error('Translation error:', error);
+    console.error('❌ Translation error:', error);
     return text; // Return original text on error
   }
 }

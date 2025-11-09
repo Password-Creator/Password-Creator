@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
+import { useLanguage } from '../contexts/LanguageContext';
 import LanguageSelector from './LanguageSelector';
 import './Landing.css';
 
@@ -10,6 +11,7 @@ interface LandingProps {
 
 const Landing: React.FC<LandingProps> = ({ onLogin, onCreateAccount }) => {
   const { loginWithRedirect } = useAuth0();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{email?: string; password?: string}>({});
@@ -17,10 +19,10 @@ const Landing: React.FC<LandingProps> = ({ onLogin, onCreateAccount }) => {
 
   const validate = () => {
     const e: {email?: string; password?: string} = {};
-    if (!email) e.email = 'COMM CHANNEL REQUIRED!';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = 'INVALID CHANNEL FORMAT!';
-    if (!password) e.password = 'SECRET CODE REQUIRED!';
-    else if (password.length < 6) e.password = 'CODE TOO WEAK!';
+    if (!email) e.email = t('landing.emailRequired');
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = t('landing.emailInvalid');
+    if (!password) e.password = t('landing.passwordRequired');
+    else if (password.length < 6) e.password = t('landing.passwordWeak');
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -43,11 +45,11 @@ const Landing: React.FC<LandingProps> = ({ onLogin, onCreateAccount }) => {
         <div className="pixel-corner pixel-corner-bl" />
         <div className="pixel-corner pixel-corner-br" />
 
-        <h1 className="title">SPEAKEASY LOGIN<span className="pixel-cursor" /></h1>
+        <h1 className="title">{t('landing.title')}<span className="pixel-cursor" /></h1>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="email">COMMUNICATION CHANNEL (EMAIL):</label>
+            <label htmlFor="email">{t('landing.emailLabel')}</label>
             <div className="input-wrapper">
               <input
                 id="email"
@@ -63,7 +65,7 @@ const Landing: React.FC<LandingProps> = ({ onLogin, onCreateAccount }) => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">SECRET CODE (PASSWORD):</label>
+            <label htmlFor="password">{t('landing.passwordLabel')}</label>
             <div className="input-wrapper">
               <input
                 id="password"
@@ -78,12 +80,12 @@ const Landing: React.FC<LandingProps> = ({ onLogin, onCreateAccount }) => {
             <div className="error-message" style={{opacity: errors.password ? 1 : 0}}>{errors.password || ' '}</div>
           </div>
 
-          <button type="submit" disabled={loading}>{loading ? 'INITIALIZING…' : 'LOG IN'}</button>
+          <button type="submit" disabled={loading}>{loading ? t('landing.initializing') : t('landing.login')}</button>
         </form>
-        <button className="link-like" onClick={onCreateAccount}>CREATE NEW ACCOUNT</button>
+        <button className="link-like" onClick={onCreateAccount}>{t('landing.createAccount')}</button>
         
         <div className="divider">
-          <span>OR CONNECT VIA</span>
+          <span>{t('landing.orConnectVia')}</span>
         </div>
         
         <div className="social-buttons">
@@ -97,7 +99,7 @@ const Landing: React.FC<LandingProps> = ({ onLogin, onCreateAccount }) => {
             })}
           >
             <span className="social-icon">G</span>
-            SIGN IN WITH GOOGLE
+            {t('landing.signInGoogle')}
           </button>
           <button 
             type="button" 
@@ -109,7 +111,7 @@ const Landing: React.FC<LandingProps> = ({ onLogin, onCreateAccount }) => {
             })}
           >
             <span className="social-icon">in</span>
-            SIGN IN WITH LINKEDIN
+            {t('landing.signInLinkedin')}
           </button>
         </div>
       </div>

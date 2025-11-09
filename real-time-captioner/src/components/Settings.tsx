@@ -44,6 +44,25 @@ const Settings: React.FC<SettingsProps> = ({
     { code: 'ko-KR', name: 'Korean' },
   ];
 
+  const translationLanguages = [
+    { code: 'es', name: 'Spanish' },
+    { code: 'fr', name: 'French' },
+    { code: 'de', name: 'German' },
+    { code: 'it', name: 'Italian' },
+    { code: 'pt', name: 'Portuguese' },
+    { code: 'zh', name: 'Chinese (Simplified)' },
+    { code: 'ja', name: 'Japanese' },
+    { code: 'ko', name: 'Korean' },
+    { code: 'ar', name: 'Arabic' },
+    { code: 'hi', name: 'Hindi' },
+    { code: 'ru', name: 'Russian' },
+    { code: 'nl', name: 'Dutch' },
+    { code: 'pl', name: 'Polish' },
+    { code: 'tr', name: 'Turkish' },
+    { code: 'vi', name: 'Vietnamese' },
+    { code: 'th', name: 'Thai' },
+  ];
+
   if (!isOpen) return null;
 
   return (
@@ -167,7 +186,51 @@ const Settings: React.FC<SettingsProps> = ({
           </div>
 
           <div className="settings-section">
-            <h3>Options</h3>
+            <h3>Real-Time Translation</h3>
+            
+            <div className="setting-group checkbox-group">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={localSettings.enableTranslation}
+                  onChange={(e) => handleChange('enableTranslation', e.target.checked)}
+                />
+                <strong>Enable real-time caption translation</strong>
+              </label>
+            </div>
+
+            {localSettings.enableTranslation && (
+              <div className="setting-group">
+                <label htmlFor="targetLanguage">
+                  <strong>Translate captions to:</strong>
+                </label>
+                <select
+                  id="targetLanguage"
+                  value={localSettings.targetLanguage || 'es'}
+                  onChange={(e) => handleChange('targetLanguage', e.target.value)}
+                  style={{ width: '100%', padding: '8px' }}
+                >
+                  {translationLanguages.map((lang) => (
+                    <option key={lang.code} value={lang.code}>
+                      {lang.name}
+                    </option>
+                  ))}
+                </select>
+                <p style={{ fontSize: '0.85em', marginTop: '5px', opacity: 0.7 }}>
+                  Captions will appear in two columns: English (left) and {translationLanguages.find(l => l.code === (localSettings.targetLanguage || 'es'))?.name} (right)
+                </p>
+              </div>
+            )}
+
+            {!localSettings.enableTranslation && (
+              <p style={{ fontSize: '0.9em', opacity: 0.6, marginTop: '10px' }}>
+                Enable translation to see captions in multiple languages simultaneously
+              </p>
+            )}
+          </div>
+
+          <div className="settings-section">
+            <h3>Other Options</h3>
             
             <div className="setting-group checkbox-group">
               <label>
@@ -188,17 +251,6 @@ const Settings: React.FC<SettingsProps> = ({
                   onChange={(e) => handleChange('showConfidence', e.target.checked)}
                 />
                 Show confidence indicators
-              </label>
-            </div>
-
-            <div className="setting-group checkbox-group">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={localSettings.enableTranslation}
-                  onChange={(e) => handleChange('enableTranslation', e.target.checked)}
-                />
-                Enable translation (coming soon)
               </label>
             </div>
           </div>

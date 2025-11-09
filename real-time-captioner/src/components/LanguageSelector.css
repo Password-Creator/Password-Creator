@@ -1,8 +1,18 @@
+/* When inside audio-controls, use relative positioning */
+.audio-controls .language-selector {
+  position: relative;
+  bottom: auto;
+  left: auto;
+  z-index: auto;
+  margin-right: 15px; /* Space between language selector and other buttons */
+}
+
+/* Standalone positioning (for Landing and Notes pages) */
 .language-selector {
   position: fixed;
   bottom: 20px;
   left: 20px;
-  z-index: 1000;
+  z-index: 1001;
 }
 
 .language-button {
@@ -20,8 +30,9 @@
   transition: all 0.2s ease;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   letter-spacing: 1px;
-  min-width: 160px;
+  min-width: 140px; /* Smaller when inside audio controls */
   height: 56px;
+  white-space: nowrap;
 }
 
 .language-button:hover {

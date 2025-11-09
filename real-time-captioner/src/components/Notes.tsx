@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { CaptureSession, SubjectFilter } from '../types/notes';
-import { loadSessions, deleteSession } from '../services/sessionStorage';
+import React, { useEffect } from 'react';
+import { CaptureSession } from '../types/notes';
+import { loadSessions, deleteSession as deleteSessionFromStorage } from '../services/sessionStorage';
 import SessionSummary from './SessionSummary';
+import LanguageSelector from './LanguageSelector';
+import { useLanguage } from '../contexts/LanguageContext';
 import './Notes.css';
 
 const Notes: React.FC = () => {
-  const [sessions, setSessions] = useState<CaptureSession[]>([]);
-  const [selectedSubject, setSelectedSubject] = useState<SubjectFilter>('All');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [expandedSession, setExpandedSession] = useState<string | null>(null);
+  const [sessions, setSessions] = React.useState<CaptureSession[]>([]);
+  const [expandedId, setExpandedId] = React.useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [selectedSubject, setSelectedSubject] = React.useState<string>('');
+  const { t } = useLanguage();
 
   // Load sessions from storage on mount
   useEffect(() => {
@@ -22,13 +25,14 @@ const Notes: React.FC = () => {
     setSessions(loadedSessions);
   };
 
-  const subjects: SubjectFilter[] = ['All', 'Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'History', 'English', 'Psychology', 'Economics', 'Engineering', 'Other'];
+  // Available subject filters (commented out if not used in UI currently)
+  // const subjects: SubjectFilter[] = ['All', 'Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'History', 'English', 'Psychology', 'Economics', 'Engineering', 'Other'];
 
   const filteredSessions = sessions.filter(session => {
-    const matchesSubject = selectedSubject === 'All' || session.subject === selectedSubject;
-    const matchesSearch = searchQuery === '' || 
-      session.rawText.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      session.subject.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSubject = selectedSubject === '' || selectedSubject === 'All' || session.subject === selectedSubject;
+    const matchesSearch = searchTerm === '' || 
+      session.rawText.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      session.subject.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSubject && matchesSearch;
   });
 
@@ -93,7 +97,7 @@ const Notes: React.FC = () => {
 
   const handleDelete = (sessionId: string) => {
     if (window.confirm('Are you sure you want to delete this session?')) {
-      deleteSession(sessionId);
+      deleteSessionFromStorage(sessionId);
       loadSessionsFromStorage();
     }
   };
@@ -111,34 +115,34 @@ const Notes: React.FC = () => {
 
   return (
     <div className="notes-page">
-      <div className="notes-header">
-        <h1 className="notes-title">SESSION NOTES<span className="pixel-cursor" /></h1>
-        <p className="notes-subtitle">All your captured sessions in one place</p>
-      </div>
-
+        <div className="notes-header">
+          <h1 className="notes-title">
+            {t('notes.title')}
+            <span className="pixel-cursor"></span>
+          </h1>
+          <p className="notes-subtitle">{t('notes.totalSessions')}: {sessions.length}</p>
+        </div>
+      
       <div className="notes-controls">
         <div className="search-container">
           <input
             type="text"
+            placeholder={t('notes.searchPlaceholder')}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
-            placeholder="Search notes..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
 
         <div className="filter-container">
           <label className="filter-label">FILTER BY SUBJECT:</label>
           <div className="subject-filters">
-            {subjects.map(subject => (
-              <button
-                key={subject}
-                className={`filter-btn ${selectedSubject === subject ? 'active' : ''}`}
-                onClick={() => setSelectedSubject(subject)}
-              >
-                {subject}
-              </button>
-            ))}
+            <button
+              className={`filter-btn ${selectedSubject === '' ? 'active' : ''}`}
+              onClick={() => setSelectedSubject('')}
+            >
+              {t('notes.allSubjects')}
+            </button>
           </div>
         </div>
       </div>
@@ -167,7 +171,7 @@ const Notes: React.FC = () => {
                 </div>
 
                 {/* Show AI summary if available, otherwise show preview */}
-                {expandedSession === session.id ? (
+                {expandedId === session.id ? (
                   <div className="session-expanded">
                     <SessionSummary
                       aiSummary={session.aiSummary}
@@ -197,23 +201,23 @@ const Notes: React.FC = () => {
                 <div className="session-actions">
                   <button
                     className="action-btn expand-btn"
-                    onClick={() => setExpandedSession(expandedSession === session.id ? null : session.id)}
+                    onClick={() => setExpandedId(expandedId === session.id ? null : session.id)}
                   >
-                    {expandedSession === session.id ? '▼ COLLAPSE' : '▶ EXPAND'}
+                    {expandedId === session.id ? `▼ ${t('notes.collapse')}` : `▶ ${t('notes.expand')}`}
                   </button>
                   <button
                     className="action-btn share-btn"
                     onClick={() => handleShare(session)}
                     title="Share via AirDrop or other methods"
                   >
-                    ↗ SHARE
+                    ↗ {t('notes.share')}
                   </button>
                   <button
                     className="action-btn download-btn"
                     onClick={() => handleDownloadPDF(session)}
                     title="Download as text file"
                   >
-                    ⬇ DOWNLOAD
+                    ⬇ {t('notes.download')}
                   </button>
                   <button
                     className="action-btn delete-btn"
@@ -232,6 +236,9 @@ const Notes: React.FC = () => {
       <div className="notes-footer">
         <p>Total Sessions: {filteredSessions.length}</p>
       </div>
+      
+      {/* Language Selector at bottom left */}
+      <LanguageSelector />
     </div>
   );
 };

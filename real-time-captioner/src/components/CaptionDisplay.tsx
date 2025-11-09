@@ -21,7 +21,7 @@ const CaptionDisplay: React.FC<CaptionDisplayProps> = ({
   isListening = false
 }) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const isDualLanguage = language !== 'en';
 
   // Keep ALL captions - no auto-removal, just manage final vs interim
@@ -64,8 +64,8 @@ const CaptionDisplay: React.FC<CaptionDisplayProps> = ({
     >
       {visibleCaptions.length === 0 ? (
         <div className="no-captions">
-          <p>Ready to capture speech...</p>
-          <p className="subtitle">Click the microphone button to start</p>
+          <p>{t('home.readyToCapture')}</p>
+          <p className="subtitle">{t('home.clickToStart')}</p>
         </div>
       ) : (
         <>
@@ -81,13 +81,13 @@ const CaptionDisplay: React.FC<CaptionDisplayProps> = ({
               zIndex: 100,
               backgroundColor: 'rgba(0,0,0,0.7)'
             }}>
-              Stopped - Click CLEAR to reset or START to continue
+              {t('home.paused')}
             </div>
           )}
           {isDualLanguage ? (
             <div className="dual-language-container" ref={containerRef}>
               <div className="language-column english-column">
-                <div className="language-header">English</div>
+                <div className="language-header">{t('captions.original')}</div>
                 <div className="language-captions">
                   {visibleCaptions.map((caption: Caption, index: number) => {
                     const isLast = index === visibleCaptions.length - 1;
@@ -108,7 +108,7 @@ const CaptionDisplay: React.FC<CaptionDisplayProps> = ({
                 </div>
               </div>
               <div className="language-column translation-column">
-                <div className="language-header">Translation</div>
+                <div className="language-header">{t('captions.translation')}</div>
                 <div className="language-captions">
                   {visibleCaptions.map((caption: Caption, index: number) => {
                     const isLast = index === visibleCaptions.length - 1;

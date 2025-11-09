@@ -94,6 +94,35 @@
   transform: none;
 }
 
+.settings-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #222034;
+  border: 3px solid #29adff;
+  color: #29adff;
+  cursor: pointer;
+  padding: 10px 14px;
+  transition: all 0.3s;
+  min-width: 55px;
+  min-height: 55px;
+  font-family: 'VT323', monospace;
+  letter-spacing: 1px;
+  font-size: 28px;
+}
+
+.settings-button:hover {
+  background-color: #29adff;
+  color: #222034;
+  transform: translateY(-2px) rotate(90deg);
+  box-shadow: 0 4px 12px rgba(41, 173, 255, 0.4);
+}
+
+.settings-button:active {
+  transform: translateY(-1px) rotate(90deg) scale(0.98);
+}
+
 .mic-button:active {
   transform: scale(0.98);
   transition: transform 0.05s ease;

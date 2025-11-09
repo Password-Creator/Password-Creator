@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../contexts/LanguageContext';
 import './Navbar.css';
 
 interface NavbarProps {
@@ -20,6 +21,8 @@ const Navbar: React.FC<NavbarProps> = ({
   onNavigateHome,
   onNavigateNotes,
 }) => {
+  const { t } = useLanguage();
+  
   return (
     <header className="navbar">
       <h1 className="navbar-title">SpeakEasy</h1>
@@ -34,14 +37,14 @@ const Navbar: React.FC<NavbarProps> = ({
           onClick={onNavigateHome}
           aria-label="Home"
         >
-          🏠 Home
+          🏠 {t('nav.home')}
         </button>
         <button 
           className="navbar-button navbar-button-secondary"
           onClick={onNavigateNotes}
           aria-label="Notes"
         >
-          📝 Notes
+          📝 {t('nav.notes')}
         </button>
         <button 
           className="navbar-button navbar-button-secondary"
@@ -65,7 +68,7 @@ const Navbar: React.FC<NavbarProps> = ({
             onClick={onLogout}
             aria-label="Log out"
           >
-            🚪 Logout
+            🚪 {t('nav.logout')}
           </button>
         )}
       </div>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .container {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        h1 {
+            color: #4caf50;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #333;
+            border-radius: 5px;
+        }
+        input, select, button {
+            padding: 10px;
+            margin: 10px 5px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+        }
+        input {
+            width: 300px;
+            background: #444;
+            color: #fff;
+        }
+        select {
+            background: #444;
+            color: #fff;
+        }
+        button {
+            background: #4caf50;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #1a1a1a;
+            border-radius: 5px;
+            min-height: 50px;
+        }
+        .success {
+            color: #4caf50;
+        }
+        .error {
+            color: #f44336;
+        }
+        .info {
+            color: #2196F3;
+        }
+        .log {
+            background: #000;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Translation API Test</h1>
+        
+        <div class="test-section">
+            <h3>Test Your Translation API</h3>
+            <input type="text" id="textInput" placeholder="Enter text to translate" value="Hello, how are you?">
+            <select id="targetLang">
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="it">Italian</option>
+                <option value="pt">Portuguese</option>
+                <option value="ja">Japanese</option>
+                <option value="ko">Korean</option>
+                <option value="zh">Chinese</option>
+                <option value="ar">Arabic</option>
+                <option value="ru">Russian</option>
+            </select>
+            <button onclick="testTranslation()">Translate</button>
+            
+            <div id="result" class="result"></div>
+            <div id="logs" class="log"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>API Key Status</h3>
+            <div id="apiKeyStatus"></div>
+        </div>
+    </div>
+
+    <script>
+        // Load API key from .env file (you'll need to replace this)
+        const API_KEY = 'AIzaSyCfCqZiZVDQ5lPHrPMWDwer9qUFY2lwAiw';
+        
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            logsDiv.innerHTML += `<div class="${type}">[${timestamp}] ${message}</div>`;
+        }
+
+        function checkApiKey() {
+            const statusDiv = document.getElementById('apiKeyStatus');
+            if (!API_KEY || API_KEY === 'YOUR_KEY_HERE') {
+                statusDiv.innerHTML = '<span class="error">❌ API Key not configured</span>';
+                log('API Key not found', 'error');
+            } else {
+                statusDiv.innerHTML = `<span class="success">✅ API Key loaded: ${API_KEY.substring(0, 20)}...</span>`;
+                log('API Key loaded successfully', 'success');
+            }
+        }
+
+        async function testTranslation() {
+            const text = document.getElementById('textInput').value;
+            const targetLang = document.getElementById('targetLang').value;
+            const resultDiv = document.getElementById('result');
+            const logsDiv = document.getElementById('logs');
+            
+            logsDiv.innerHTML = '';
+            resultDiv.innerHTML = '<span class="info">🔄 Translating...</span>';
+            
+            log(`Starting translation to ${targetLang}`, 'info');
+            log(`Text: "${text}"`, 'info');
+            
+            try {
+                const url = `https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`;
+                log(`URL: ${url.replace(API_KEY, 'API_KEY_HIDDEN')}`, 'info');
+                
+                const requestBody = {
+                    q: text,
+                    source: 'en',
+                    target: targetLang,
+                    format: 'text'
+                };
+                log(`Request: ${JSON.stringify(requestBody, null, 2)}`, 'info');
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                log(`Response status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    log(`Error response: ${errorText}`, 'error');
+                    throw new Error(`API error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                log(`Response data: ${JSON.stringify(data, null, 2)}`, 'success');
+                
+                if (data.data && data.data.translations && data.data.translations[0]) {
+                    const translatedText = data.data.translations[0].translatedText;
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ Translation Successful!</strong><br>
+                            <strong>Original:</strong> ${text}<br>
+                            <strong>Translated:</strong> ${translatedText}<br>
+                            <strong>Language:</strong> ${targetLang}
+                        </div>
+                    `;
+                    log(`Translation: "${translatedText}"`, 'success');
+                } else {
+                    throw new Error('Invalid response format');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                log(`Translation failed: ${error.message}`, 'error');
+                console.error('Full error:', error);
+            }
+        }
+
+        // Check API key on load
+        checkApiKey();
+    </script>
+</body>
+</html>

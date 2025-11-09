@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import TroubleshootingTips from './TroubleshootingTips';
+import LanguageSelector from './LanguageSelector';
+import { useLanguage } from '../contexts/LanguageContext';
 import { useVolumeMonitor } from '../hooks/useVolumeMonitor';
 import './AudioControls.css';
 
@@ -22,6 +24,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
   canSave,
   errorMessage
 }) => {
+  const { t } = useLanguage();
   const { volume, volumeLevel } = useVolumeMonitor({ isListening });
   const [showVolumeFeedback, setShowVolumeFeedback] = useState(false);
   const [lastShownLevel, setLastShownLevel] = useState<'silent' | 'low' | 'good' | 'excellent'>('silent');
@@ -108,6 +111,9 @@ const AudioControls: React.FC<AudioControlsProps> = ({
 
   return (
     <div className="audio-controls">
+      {/* Language selector on the left */}
+      <LanguageSelector />
+      
       <div className="controls-section">
         <button
           className={`mic-button ${isListening ? 'listening' : 'stopped'}`}
@@ -122,7 +128,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
           aria-label={isListening ? 'Stop listening' : 'Start listening'}
         >
           <span className="button-text">
-            {isListening ? 'STOP' : 'START'}
+            {isListening ? t('home.stop') : t('home.start')}
           </span>
         </button>
 
@@ -131,7 +137,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
           onClick={onClearCaptions}
           aria-label="Clear all captions"
         >
-          <span className="button-text">CLEAR</span>
+          <span className="button-text">{t('home.clear')}</span>
         </button>
 
         <button
@@ -139,9 +145,9 @@ const AudioControls: React.FC<AudioControlsProps> = ({
           onClick={onSaveSession}
           disabled={!canSave}
           aria-label="Save session to notes"
-          title={canSave ? 'Save session and generate AI summary' : 'Record some content first'}
+          title={canSave ? t('home.saveAndGenerate') : t('home.recordFirst')}
         >
-          <span className="button-text">💾 SAVE SESSION</span>
+          <span className="button-text">💾 {t('home.saveSession')}</span>
         </button>
       </div>
 
@@ -149,7 +155,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
         <div className={`status-indicator ${isListening ? 'active' : 'inactive'}`}>
           <div className="status-dot"></div>
           <span className="status-text">
-            {isListening ? 'Listening...' : 'Stopped'}
+            {isListening ? t('home.listening') : t('home.stopped')}
           </span>
         </div>
 
