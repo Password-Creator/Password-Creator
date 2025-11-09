@@ -111,8 +111,10 @@
     </div>
 
     <script>
-        // Load API key from .env file (you'll need to replace this)
-        const API_KEY = 'AIzaSyCfCqZiZVDQ5lPHrPMWDwer9qUFY2lwAiw';
+        // WARNING: This test file requires you to manually enter your API key
+        // NEVER commit your actual API key to version control
+        // Get your API key from .env file: REACT_APP_GOOGLE_TRANSLATE_API_KEY
+        const API_KEY = 'YOUR_API_KEY_HERE'; // Replace with your actual key when testing locally
         
         function log(message, type = 'info') {
             const logsDiv = document.getElementById('logs');
@@ -122,9 +124,9 @@
 
         function checkApiKey() {
             const statusDiv = document.getElementById('apiKeyStatus');
-            if (!API_KEY || API_KEY === 'YOUR_KEY_HERE') {
-                statusDiv.innerHTML = '<span class="error">❌ API Key not configured</span>';
-                log('API Key not found', 'error');
+            if (!API_KEY || API_KEY === 'YOUR_API_KEY_HERE') {
+                statusDiv.innerHTML = '<span class="error">❌ API Key not configured - Please add your key on line 115</span>';
+                log('API Key not found - Update line 115 with your REACT_APP_GOOGLE_TRANSLATE_API_KEY from .env', 'error');
             } else {
                 statusDiv.innerHTML = `<span class="success">✅ API Key loaded: ${API_KEY.substring(0, 20)}...</span>`;
                 log('API Key loaded successfully', 'success');
