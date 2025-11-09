@@ -48,7 +48,7 @@
   gap: 15px;
 }
 
-.mic-button, .clear-button {
+.mic-button, .clear-button, .save-button {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -64,6 +64,34 @@
   font-family: 'VT323', monospace;
   letter-spacing: 1px;
   font-size: 24px;
+}
+
+.save-button {
+  background-color: #222034;
+  border-color: #f8b700;
+  color: #f8b700;
+  min-width: 150px;
+  font-weight: bold;
+}
+
+.save-button.enabled:hover {
+  background-color: #f8b700;
+  color: #222034;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(248, 183, 0, 0.4);
+}
+
+.save-button.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: #666;
+  color: #666;
+}
+
+.save-button.disabled:hover {
+  background-color: #222034;
+  color: #666;
+  transform: none;
 }
 
 .mic-button:active {

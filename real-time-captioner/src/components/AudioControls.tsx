@@ -8,6 +8,8 @@ interface AudioControlsProps {
   isSupported: boolean;
   onToggleListening: () => void;
   onClearCaptions: () => void;
+  onSaveSession: () => void;
+  canSave: boolean;
   errorMessage?: string;
 }
 
@@ -16,6 +18,8 @@ const AudioControls: React.FC<AudioControlsProps> = ({
   isSupported,
   onToggleListening,
   onClearCaptions,
+  onSaveSession,
+  canSave,
   errorMessage
 }) => {
   const { volume, volumeLevel } = useVolumeMonitor({ isListening });
@@ -128,6 +132,16 @@ const AudioControls: React.FC<AudioControlsProps> = ({
           aria-label="Clear all captions"
         >
           <span className="button-text">CLEAR</span>
+        </button>
+
+        <button
+          className={`save-button ${canSave ? 'enabled' : 'disabled'}`}
+          onClick={onSaveSession}
+          disabled={!canSave}
+          aria-label="Save session to notes"
+          title={canSave ? 'Save session and generate AI summary' : 'Record some content first'}
+        >
+          <span className="button-text">💾 SAVE SESSION</span>
         </button>
       </div>
 

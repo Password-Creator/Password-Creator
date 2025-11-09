@@ -1,14 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CaptureSession, SubjectFilter } from '../types/notes';
-import { dummySessions } from '../data/dummySessions';
+import { loadSessions, deleteSession } from '../services/sessionStorage';
+import SessionSummary from './SessionSummary';
 import './Notes.css';
 
 const Notes: React.FC = () => {
-  const [sessions] = useState<CaptureSession[]>(dummySessions);
+  const [sessions, setSessions] = useState<CaptureSession[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<SubjectFilter>('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [expandedSession, setExpandedSession] = useState<string | null>(null);
 
-  const subjects: SubjectFilter[] = ['All', 'Computer Science', 'Mathematics', 'Physics', 'Biology', 'History'];
+  // Load sessions from storage on mount
+  useEffect(() => {
+    loadSessionsFromStorage();
+  }, []);
+
+  const loadSessionsFromStorage = () => {
+    const loadedSessions = loadSessions();
+    // Sort by timestamp, newest first
+    loadedSessions.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    setSessions(loadedSessions);
+  };
+
+  const subjects: SubjectFilter[] = ['All', 'Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'History', 'English', 'Psychology', 'Economics', 'Engineering', 'Other'];
 
   const filteredSessions = sessions.filter(session => {
     const matchesSubject = selectedSubject === 'All' || session.subject === selectedSubject;
@@ -50,7 +64,22 @@ const Notes: React.FC = () => {
 
   const handleDownloadPDF = (session: CaptureSession) => {
     // Create a simple text file (PDF generation would require a library like jsPDF)
-    const content = `${session.subject}\n${formatDate(session.timestamp)}\nDuration: ${session.duration} minutes\n\n${session.rawText}`;
+    let content = `${session.subject}\n${formatDate(session.timestamp)}\nDuration: ${session.duration} minutes\n\n`;
+    
+    if (session.aiSummary) {
+      content += `AI SUMMARY\n${session.aiSummary}\n\n`;
+    }
+    
+    if (session.keyPoints && session.keyPoints.length > 0) {
+      content += `KEY POINTS\n${session.keyPoints.map((p, i) => `${i + 1}. ${p}`).join('\n')}\n\n`;
+    }
+    
+    if (session.topics && session.topics.length > 0) {
+      content += `TOPICS\n${session.topics.join(', ')}\n\n`;
+    }
+    
+    content += `FULL TRANSCRIPT\n${session.rawText}`;
+    
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -60,6 +89,13 @@ const Notes: React.FC = () => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  const handleDelete = (sessionId: string) => {
+    if (window.confirm('Are you sure you want to delete this session?')) {
+      deleteSession(sessionId);
+      loadSessionsFromStorage();
+    }
   };
 
   const getSubjectColor = (subject: string) => {
@@ -130,23 +166,41 @@ const Notes: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="session-content">
-                  <p className="session-text">
-                    {session.rawText.substring(0, 200)}
-                    {session.rawText.length > 200 && '...'}
-                  </p>
-                </div>
+                {/* Show AI summary if available, otherwise show preview */}
+                {expandedSession === session.id ? (
+                  <div className="session-expanded">
+                    <SessionSummary
+                      aiSummary={session.aiSummary}
+                      keyPoints={session.keyPoints}
+                      topics={session.topics}
+                      rawText={session.rawText}
+                    />
+                  </div>
+                ) : (
+                  <div className="session-content">
+                    <p className="session-text">
+                      {session.aiSummary || session.rawText.substring(0, 200)}
+                      {(!session.aiSummary && session.rawText.length > 200) && '...'}
+                    </p>
+                  </div>
+                )}
 
                 <div className="session-stats">
                   <span className="stat-item">
                     📝 {session.captions.length} captions
                   </span>
-                  <span className={`stat-item ${session.isProcessed ? 'processed' : 'pending'}`}>
-                    {session.isProcessed ? '✓ Processed' : '⏳ Pending'}
+                  <span className={`stat-item ${session.isProcessed && session.aiSummary ? 'processed' : 'pending'}`}>
+                    {session.isProcessed && session.aiSummary ? '✓ AI Processed' : session.isProcessed ? '✓ Saved' : '⏳ Pending'}
                   </span>
                 </div>
 
                 <div className="session-actions">
+                  <button
+                    className="action-btn expand-btn"
+                    onClick={() => setExpandedSession(expandedSession === session.id ? null : session.id)}
+                  >
+                    {expandedSession === session.id ? '▼ COLLAPSE' : '▶ EXPAND'}
+                  </button>
                   <button
                     className="action-btn share-btn"
                     onClick={() => handleShare(session)}
@@ -160,6 +214,13 @@ const Notes: React.FC = () => {
                     title="Download as text file"
                   >
                     ⬇ DOWNLOAD
+                  </button>
+                  <button
+                    className="action-btn delete-btn"
+                    onClick={() => handleDelete(session.id)}
+                    title="Delete this session"
+                  >
+                    🗑 DELETE
                   </button>
                 </div>
               </div>

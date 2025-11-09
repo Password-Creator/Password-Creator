@@ -143,9 +143,33 @@ export const useSpeechRecognition = ({
 
       // Handle end of recognition
       recognition.onend = () => {
-        // Only set to false if we're not manually stopping
-        // (to prevent race conditions with manual stop)
-        if (!isManuallyStoppingRef.current) {
+        console.log('Recognition ended, isManuallyStoppingRef:', isManuallyStoppingRef.current);
+        
+        // If we're NOT manually stopping and continuous mode is on, restart immediately
+        if (!isManuallyStoppingRef.current && continuous) {
+          console.log('🔄 Auto-restarting recognition (continuous mode)');
+          setTimeout(() => {
+            try {
+              if (recognitionRef.current && !isManuallyStoppingRef.current) {
+                console.log('▶️ Restarting recognition now...');
+                recognitionRef.current.start();
+                console.log('✅ Recognition restarted successfully');
+              }
+            } catch (error) {
+              console.log('⚠️ Auto-restart failed:', error);
+              // If it fails because it's already started, that's fine
+              if ((error as Error).message?.includes('already started')) {
+                console.log('✅ Recognition was already running');
+              } else {
+                console.error('❌ Failed to restart:', error);
+                setIsListening(false);
+                onError?.('Speech recognition stopped unexpectedly. Please click the microphone to restart.');
+              }
+            }
+          }, 250); // Increased delay to 250ms for more reliable restart
+        } else {
+          // Only set to false if we're manually stopping
+          console.log('⏹️ Stopping recognition (manual stop or not continuous)');
           setTimeout(() => {
             setIsListening(false);
           }, 50);

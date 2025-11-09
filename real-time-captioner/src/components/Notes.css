@@ -237,10 +237,12 @@
   display: flex;
   gap: 10px;
   margin-top: 15px;
+  flex-wrap: wrap;
 }
 
 .action-btn {
   flex: 1;
+  min-width: 100px;
   padding: 12px 16px;
   font-size: 16px;
   font-family: 'VT323', monospace;
@@ -250,6 +252,18 @@
   border: 3px solid;
   transition: all 0.3s;
   text-transform: uppercase;
+}
+
+.expand-btn {
+  background-color: #222034;
+  border-color: #ff77a8;
+  color: #ff77a8;
+}
+
+.expand-btn:hover {
+  background-color: #ff77a8;
+  color: #222034;
+  transform: translateY(-2px);
 }
 
 .share-btn {
@@ -274,6 +288,23 @@
   background-color: #00ff88;
   color: #222034;
   transform: translateY(-2px);
+}
+
+.delete-btn {
+  background-color: #222034;
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}
+
+.delete-btn:hover {
+  background-color: #ff6b6b;
+  color: #222034;
+  transform: translateY(-2px);
+}
+
+.session-expanded {
+  margin: 15px 0;
+  padding: 10px 0;
 }
 
 .notes-footer {
