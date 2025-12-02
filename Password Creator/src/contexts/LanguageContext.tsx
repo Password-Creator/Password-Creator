@@ -18,7 +18,7 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.logout': 'Logout',
     
     // Landing Page
-    'landing.title': 'SPEAKEASY LOGIN',
+    'landing.title': 'CIPHERCRAFT LOGIN',
     'landing.subtitle': 'Capture and transcribe lectures in real-time',
     'landing.login': 'Login',
     'landing.signup': 'Sign Up',
@@ -108,7 +108,7 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.logout': 'Cerrar Sesión',
     
     // Landing Page
-    'landing.title': 'SPEAKEASY LOGIN',
+    'landing.title': 'CIPHERCRAFT LOGIN',
     'landing.subtitle': 'Captura y transcribe conferencias en tiempo real',
     'landing.login': 'Iniciar Sesión',
     'landing.signup': 'Registrarse',

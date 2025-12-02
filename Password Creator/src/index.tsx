@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { Auth0Provider } from '@auth0/auth0-react';
+import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 
 const root = ReactDOM.createRoot(
@@ -12,17 +12,11 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <Auth0Provider
-      domain={process.env.REACT_APP_AUTH0_DOMAIN!}
-      clientId={process.env.REACT_APP_AUTH0_CLIENT_ID!}
-      authorizationParams={{
-        redirect_uri: window.location.origin
-      }}
-    >
+    <AuthProvider>
       <LanguageProvider>
         <App />
       </LanguageProvider>
-    </Auth0Provider>
+    </AuthProvider>
   </React.StrictMode>
 );
 
